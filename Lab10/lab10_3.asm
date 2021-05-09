@@ -1,5 +1,5 @@
 ; Lab 10
-; name: dtoc
+; name: wdtoc
 ; func: convert HEX word(8bit) data into a string of DEC which ends with 0
 ; args: (ax) = data (word)
 ;		ds:si = where the string begins
@@ -23,8 +23,8 @@ start:		mov ax,data
 			mov sp,20H
 			mov si,0
 			
-			mov ax,12666
-			call dtoc
+			mov ax,3
+			call wdtoc
 			
 			mov dh,8
 			mov dl,3
@@ -34,7 +34,7 @@ start:		mov ax,data
 			mov ax,4c00H
 			int 21h
 			
-dtoc:		push ax
+wdtoc:		push ax
 			push bx
 			push cx
 			push dx
@@ -44,17 +44,22 @@ dtoc:		push ax
 			mov bx,0
 			mov si,0
 			
-	dtoc_s:	mov dx,0
+	wdtoc_s:mov dx,0
 			mov cx,10
 			call divdw
 			add cl,30H			; DEC to ASCII
 			mov ds:[bx+si],cl	; remainder (ASCII)
 			mov cx,ax			; quotient
 			inc si
-			jcxz dtoc_done
-			jmp short dtoc_s
-			
- dtoc_done:	push si
+			jcxz wdtoc_done
+			jmp short wdtoc_s
+
+ ; reverse the output
+ wdtoc_done:push si
+			sub si,1
+			mov cx,si
+			jcxz wdtoc_ret
+			inc si
 			mov ax,si
 			mov cl,2
 			div cl
@@ -63,17 +68,17 @@ dtoc:		push ax
 			mov di,si
 			sub di,1			; position of the last char
 			mov si,0			; position of the first char
-   dtoc_s1:	mov al,ds:[bx+si]
+   wdtoc_s1:mov al,ds:[bx+si]
 			mov ah,ds:[bx+di]
 			mov ds:[bx+si],ah
 			mov ds:[bx+di],al
 			sub di,1
 			inc si
-			loop dtoc_s1
+			loop wdtoc_s1
 			
-			pop si
-			mov ax,0
-			mov ds:[bx+si],ax
+ wdtoc_ret:	pop si
+			mov al,0
+			mov ds:[bx+si],al
 			
 			pop di
 			pop si

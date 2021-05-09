@@ -1,5 +1,5 @@
 ; Task in Project1
-; @ Improve dtoc function so that it supports converting dword HEX into string
+; @ Improved dtoc function, supporting the conversion from dword HEX into string
 ; 
 ; name: dtoc
 ; func: convert HEX dword(16bit) data into a string of DEC which ends with 0
@@ -26,8 +26,8 @@ start:		mov ax,data
 			mov sp,20H
 			mov si,0
 			
-			mov ax,317AH
-			mov dx,002CH
+			mov ax,9768H	; sample data (l)
+			mov dx,005AH	; sample data (h)
 			call dtoc
 			
 			mov dh,8
@@ -57,7 +57,12 @@ dtoc:		push ax
 			jcxz dtoc_done
 			jmp short dtoc_s
 			
+ ; reverse the output
  dtoc_done:	push si
+			sub si,1
+			mov cx,si
+			jcxz dtoc_ret
+			inc si
 			mov ax,si
 			mov cl,2
 			div cl
@@ -74,7 +79,7 @@ dtoc:		push ax
 			inc si
 			loop dtoc_s1
 			
-			pop si
+ dtoc_ret:	pop si
 			mov ax,0
 			mov ds:[bx+si],ax
 			
